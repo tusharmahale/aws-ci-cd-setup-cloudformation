@@ -1,0 +1,70 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "VPC with Public and Private Subnet"
+
+Parameters:
+  VpcSubnetCidrs:
+    Type: CommaDelimitedList
+    Description: "CIDR blocks for VPC and subnets. Specify VPC first."
+
+Resources:
+  Vpc:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: !Select [0, !Ref VpcSubnetCidrs]
+      EnableDnsSupport: True
+      EnableDnsHostnames: True
+      Tags:
+      - Key: Name
+        Value: !Ref AWS::StackName
+        
+  # Public Subnet
+  subnetDmzA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Select [1, !Ref VpcSubnetCidrs]
+      MapPublicIpOnLaunch: true
+      Tags:
+      - Key: Name
+        Value: DMZ A
+      - Key: Scope
+        Value: public
+      - Key: Purpose
+        Value: CI/CD
+      VpcId: !Ref Vpc
+
+
+  # Private Subnet
+  subnetNodesA:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Select [2, !Ref VpcSubnetCidrs]
+      MapPublicIpOnLaunch: false
+      Tags:
+      - Key: Name
+        Value: Cluster Nodes A
+      - Key: Scope
+        Value: private
+      - Key: Purpose
+        Value: nodes
+      VpcId: !Ref Vpc
+
+
+Outputs:
+  VpcId:
+      Description : "VPC ID"
+      Value:  !Ref Vpc # derive the value by REFerencing the resource where logical ID=Vpc
+
+  VpcCidr:
+      Description : "VPC ID"
+      Value:  !GetAtt Vpc.CidrBlock     # export the IP range of the Vpc
+
+  SubnetDmzAId:
+      Description : "DMZ A Subnet ID"
+      Value:  !Ref subnetDmzA
+
+  SubnetNodesAId:
+      Description : "Microservices Nodes Subnet A ID"
+      Value:  !Ref subnetNodesA

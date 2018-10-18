@@ -1,0 +1,54 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "NAT Gateway and Route Table for egress-only public traffic"
+
+Parameters:
+  VpcId:
+    Type: String
+    Description: "Specify the VPC ID."
+
+  SubnetDmzAId:
+    Type: String
+    Description: "Specify the ID for DMZ Subnet A"
+
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: ami-0922553b7b0369273
+      KeyName: "virginia-key-pair"
+      InstanceType: t2.micro
+      SecurityGroupIds:
+      - Ref: InstanceSecurityGroup
+      SubnetId: !Ref SubnetDmzAId
+      UserData:
+        Fn::Base64:
+          !Sub |
+              #!/bin/bash -ex
+              sudo yum update –y;
+              sudo yum -y install java;
+              sudo wget -O /etc/yum.repos.d/jenkins.repo http://pkg.jenkins.io/redhat/jenkins.repo;
+              sudo rpm --import https://pkg.jenkins.io/redhat/jenkins.io.key;
+              sudo yum install jenkins -y;
+              sudo service jenkins start;
+              sudo amazon-linux-extras install ansible2;
+              
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enable All Access
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: "0"
+        ToPort: "65535"
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: "22"
+        ToPort: "22"
+        CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+      - IpProtocol: tcp
+        FromPort: "0"
+        ToPort: "65535"
+        CidrIp: 0.0.0.0/0

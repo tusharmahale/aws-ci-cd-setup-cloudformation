@@ -1,0 +1,42 @@
+---
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "NAT Gateway and Route Table for egress-only public traffic"
+
+Resources:
+  # Create the VPC and subnets
+  Network:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/Vpc_and_Subnets.yml
+      Parameters:
+        VpcSubnetCidrs: "172.20.10.0/16,172.20.10.0/24,172.20.20.0/24"
+
+  # Create the internet access
+  InternetAccess:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/Internet_Gateway.yml
+      Parameters:
+        VpcId: !GetAtt Network.Outputs.VpcId
+        SubnetDmzAId: !GetAtt Network.Outputs.SubnetDmzAId
+
+  # Create NAT gateway
+  NAT:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: InternetAccess
+    Properties:
+      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/NATGateway.yml
+      Parameters:
+        VpcId: !GetAtt Network.Outputs.VpcId
+        SubnetDmzAId: !GetAtt Network.Outputs.SubnetDmzAId
+        SubnetNodesAId: !GetAtt Network.Outputs.SubnetNodesAId
+        
+  # Create Compute Resources
+  COMPUTE:
+    Type: AWS::CloudFormation::Stack
+    DependsOn: NAT
+    Properties:
+      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/ComputeResources.yml
+      Parameters:
+        VpcId: !GetAtt Network.Outputs.VpcId
+        SubnetDmzAId: !GetAtt Network.Outputs.SubnetDmzAId
