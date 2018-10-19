@@ -7,7 +7,7 @@ Resources:
   Network:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/Vpc_and_Subnets.yml
+      TemplateURL: https://github.com/tusharmahale/aws-ci-cd-setup-cloudformation/raw/master/Vpc_and_Subnets.yml
       Parameters:
         VpcSubnetCidrs: "172.20.10.0/16,172.20.10.0/24,172.20.20.0/24"
 
@@ -15,7 +15,7 @@ Resources:
   InternetAccess:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/Internet_Gateway.yml
+      TemplateURL: https://github.com/tusharmahale/aws-ci-cd-setup-cloudformation/raw/master/Internet_Gateway.yml
       Parameters:
         VpcId: !GetAtt Network.Outputs.VpcId
         SubnetDmzAId: !GetAtt Network.Outputs.SubnetDmzAId
@@ -25,7 +25,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     DependsOn: InternetAccess
     Properties:
-      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/NATGateway.yml
+      TemplateURL: https://github.com/tusharmahale/aws-ci-cd-setup-cloudformation/raw/master/NATGateway.yml
       Parameters:
         VpcId: !GetAtt Network.Outputs.VpcId
         SubnetDmzAId: !GetAtt Network.Outputs.SubnetDmzAId
@@ -36,7 +36,7 @@ Resources:
     Type: AWS::CloudFormation::Stack
     DependsOn: NAT
     Properties:
-      TemplateURL: https://github.com/tusharmahale/CI-CD-Environment-Setup/raw/master/ComputeResources.yml
+      TemplateURL: https://github.com/tusharmahale/aws-ci-cd-setup-cloudformation/raw/master/ComputeResources.yml
       Parameters:
         VpcId: !GetAtt Network.Outputs.VpcId
         SubnetDmzAId: !GetAtt Network.Outputs.SubnetDmzAId
