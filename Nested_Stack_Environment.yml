@@ -14,6 +14,7 @@ Resources:
   # Create the internet access
   InternetAccess:
     Type: AWS::CloudFormation::Stack
+    DependsOn: Network
     Properties:
       TemplateURL: https://github.com/tusharmahale/aws-ci-cd-setup-cloudformation/raw/master/Internet_Gateway.yml
       Parameters:
