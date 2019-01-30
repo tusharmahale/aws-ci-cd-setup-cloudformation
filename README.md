@@ -6,5 +6,5 @@ Nested AWS Cloudformation Templates for CI-CD process
 4. NATGateway for private instances
 5. Generating Compute Resources (Linux AMI)
 
-Installaing Jenkins and ansible for CI-CD process and in public subnet (accessible from outside)
+Installing Jenkins and ansible for CI-CD process and in public subnet (accessible from outside)
 Other nodes in private subnet accessible from Jenkins Master
